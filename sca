@@ -1,0 +1,368 @@
+sc ()
+{
+cp ~x213764/.screenrc ~root/
+}
+
+rsc ()
+{
+mv .screenrc ~x213764/
+}
+
+gr ()
+{
+grep $1 ~x213764/mynotes
+}
+
+
+s ()
+{
+    screen -t $1 ssh -q -x -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $1
+}
+
+
+ss ()
+{
+    window=$1;
+    shift;
+    eval `echo -e "screen -p $window -X stuff '$@\r'"`
+}
+
+# provide first pid of ssh
+whologin ()
+{
+lsof -p $i|grep home
+}
+
+alias dns='cat /opt/usad/sue/dns.dump | grep -i '
+
+hfind ()
+{
+    dig @xasdnsmaster01 swacorp.com AXFR | grep $1
+}
+
+vp ()
+{
+for i in `eval echo {1..$1}`;
+do
+    sleep 1; s xlpted04;
+done
+echo "for i in {1..$1};do ss "'$'""i" "'"'""'"'";done"
+}
+
+chefupd ()
+{
+cd /opt/usad/mward/chef/prod
+knife node run_list add "$1".swacorp.com $2
+}
+chefshow ()
+{
+cd /opt/usad/mward/chef/prod
+echo $1++++++++++++++++++++++
+knife node show "$1".swacorp.com|grep "Run List"
+}
+
+chefqaupd ()
+{
+cd /opt/usad/mward/chef/qa
+knife node run_list add "$1".swacorp.com $2
+}
+chefqashow ()
+{
+cd /opt/usad/mward/chef/qa
+echo $1++++++++++++++++++++++
+knife node show "$1".swacorp.com|grep "Run List"
+}
+
+hfind ()
+{
+            dig @xasdnsmaster01 swacorp.com AXFR | grep $1
+}
+
+fchefdelhostqa ()
+# provide fqdn for hostnames
+{
+cd /opt/usad/haq/chef/qa
+for i in `cat $1` ;do echo $i++++++++++++;knife node delete $i -y; knife client delete $i -y; done
+}
+
+inc ()
+# copy incidents andplace them
+{
+mv /tmp/uptimeop /tmp/uptimeop.`date "+%FT%T"` 2>/dev/null
+grep -i ping $1|awk '{print $12}'|egrep -v UNIX>/tmp/hostsinc
+for i in `grep -i ping $1|awk '{print $12}'|egrep -v UNIX` ; do echo `grep $i $1|awk '{print $6,$12}'` `ssh -o ConnectTimeout=5 $i uptime`|tee -a /tmp/uptimeop; done
+}
+
+lot ()
+{
+rm -rf n n2 res
+for i in `awk '{print $2,$3,$4,$5,$6}' $1` ; do
+echo $i|tee -a n2;done
+cat n2  | awk ' { tot[$0]++ } END { for (i in tot) print tot[i],i } ' | awk '{print $2,$1}'|sort|tee -a res
+}
+
+upt ()
+{
+echo this gives smart uptime for each server and captures output in /tmp/upt;
+rm -rf /tmp/upt
+cd /var;
+for i in `cat $1`; do echo $i `./timeout 10s ssh $i uptime`|tee -a /tmp/upt;done
+echo output in /tmp/upt
+}
+
+snapdevlist ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdpdc --vmname $1.swacorp.com --operation list --username "luv\x213764"
+}
+
+snapdevcreate ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdpdc --vmname $1.swacorp.com --operation create --snapshotname $2 --username "luv\x213764"
+}
+
+snapdevpdcdel ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdpdc  --operation removeall --vmname $1.swacorp.com --username "luv\x213764"
+}
+
+snapdevsdcdel ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdsdc  --operation removeall --vmname $1.swacorp.com --username "luv\x213764"
+}
+
+snapqadel ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcqhdq  --operation removeall --vmname $1.swacorp.com --username "luv\x213764" --password Goldsin19k
+}
+
+snapprpdcdel ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcppdc  --operation removeall --vmname $1.swacorp.com --username "luv\x213764" --password Goldsin19k
+}
+
+snapprsdcdel ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcpsdc  --operation removeall --vmname $1.swacorp.com --username "luv\x213764" --password Goldsin19k
+}
+
+snapdevrevert ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl --server vcdpdc --vmname $1.swacorp.com --operation goto --snapshotname $2 --username "luv\x213764"
+}
+
+ponvm ()
+{
+/usr/lib/vmware-vcli/apps/vm/vmcontrol.pl  --server vcdpdc --vmname $1.swacorp.com --operation poweron --username "luv\x213764"
+}
+
+findvm ()
+{
+cd /opt/SWAted/build/inventory
+./LocateVm.pl $1.swacorp.com|egrep -v Loading;cd
+}
+
+Arecdel ()
+{
+echo /opt/usad/scripts/bluecatUpdate.pl -OP remove -DNSName "$1".swacorp.com -RR HostRecord
+}
+
+Acreate ()
+{
+echo provide subnet in 2
+echo /opt/usad/scripts/bluecatUpdate.pl -OP add -RR HostRecord -DNSName "$1".swacorp.com -Net $2
+}
+
+snapqa ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcqhdq --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapdevpdc ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdpdc --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapprodpdc ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcppdc --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapprodsdc ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcpsdc --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapdevsdc ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server vcdsdc --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapa21 ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server a21scwvc001 --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+snapa11 ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server a11scwvc001 --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+snapa12 ()
+{
+/usr/lib/vmware-vcli/apps/vm/snapshotmanager.pl  --server a12scwvc001 --vmname $1.swacorp.com --operation create --snapshotname sn2 --username "luv\x213764" --password Goldsin19k;
+}
+
+dnss ()
+{
+grep -i $1 /opt/usad/sue/dns.dump
+}
+
+syslognetadd ()
+{
+knife node run_list add $1.swacorp.com swa_syslogng_net
+knife node show $1.swacorp.com 
+}
+tokadd ()
+{
+knife tag create $1.swacorp.com  tokenization_net_auto
+knife node show $1.swacorp.com
+}
+
+chktags ()
+{
+vmn=`echo $1|cut -c 3`
+if [ $vmn = "d" ] || [ $vmn = "t" ] ; then
+        cd /opt/usad/haq/chef/chefsdcdev;knife node list|grep $i.swacorp.com
+        if [ $? = 0 ] ; then
+                 cd /opt/usad/haq/chef/chefsdcdev
+                 echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+                 knife node show $1.swacorp.com|egrep 'List:|Tags'
+
+
+        else
+             cd /opt/usad/haq/chef/chefpdcdev
+             echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+             knife node show $1.swacorp.com|egrep 'List:|Tags'
+
+
+        fi
+fi
+
+if [ $1 = "q" ] ; then
+   cd /opt/usad/haq/chef/qa
+   echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+knife node show $1.swacorp.com|egrep 'List:|Tags'
+
+fi
+
+if [ $vmn = "p" ] ; then
+ cd /opt/usad/haq/chef/prod
+ echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+knife node show $1.swacorp.com|egrep 'List:|Tags'
+
+fi
+
+if [ $vmn = "s" ] ; then
+  cd /opt/usad/x226657/chef-sdcPROD-repo
+echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+knife node show $1.swacorp.com|egrep 'List:|Tags'
+
+fi
+
+}
+
+chkktags ()
+{
+   echo $1 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++;
+   knife node show $1.swacorp.com|egrep 'List:|Tags'
+}
+
+ldap ()
+{
+  pwdd=`pwd`;cd ~e77994;ldapsearch -D cn=swift,ou=robotics,o=SWA-Access -H ldaps://vplbldap02a.swacorp.com -w prdswift1 -x -b ou=people,o=SWA-Access '(uid='$1')' dn company|egrep -v requ|egrep 'uid|company'|xargs;cd $pwdd
+}
+
+chkip ()
+{
+ echo chkip  ip/netmask  example 10.34.8.0/23, remove -i for diffrent options 
+/opt/usad/scripts/check_ip.pl -i $1/$2
+}
+
+lot ()
+{
+awk '{for (i=1;i<=NF;i++) a[$i]++;} END{for (i in a)print i"="a[i]}' $1 | sort -rnt= -k2,2|sort -n
+}
+
+lotsort ()
+{
+awk '{for (i=1;i<=NF;i++) a[$i]++;} END{for (i in a)print i"="a[i]}' $1 | sort -rnt= -k2,2
+}
+
+cpp ()
+{
+cd /opt/usad/haq/chefpdcpr-repo
+}
+
+cps ()
+{
+cd /opt/usad/haq/chefsdcpr-repo
+}
+
+cqa ()
+{
+cd /opt/usad/haq/chefqa
+}
+
+cdp ()
+{
+cd /opt/usad/haq/chef/chefpdcdev
+}
+
+cds ()
+{
+cd /opt/usad/haq/chef/chefsdcdev
+}
+ksn ()
+{
+knife search node "recipe:$1"|grep Node
+}
+sc ()
+{
+cp -p /opt/usad/haq/screenrc /root/.screenrc
+}
+
+dnn ()
+{
+dnss $1|egrep -v 'sn|CNAME'|awk -F '.' '{print $1}'
+}
+
+gwchk ()
+{
+ ssh $1 ip route|grep default|awk '{print $3}'
+}
+
+ksnode ()
+{
+ knife search node "recipe:swa_syslogng_gtm"|grep Node|awk '{print $3}'
+}
+ld ()
+{
+ldapsearch -D cn=swift,ou=robotics,o=SWA-Access -H ldaps://vplbldap02a.swacorp.com -w prdswift1 -x -b ou=people,o=SWA-Access '(company='$1')' dn
+}
+tags ()
+{
+for i in `cat /tmp/a`; do echo $i `knife search node $1|grep Tags`; done
+}
+
+rlchk ()
+{
+for i in `netstat -pant|grep syslog|awk '{print $5}'|sort -u|awk -F ':' '{print $1}'|sort -u`; do host $i|awk '{print $5}';done|sort
+}
+
+ld ()
+{
+ldapsearch -D cn=swift,ou=robotics,o=SWA-Access -H ldaps://vplbldap02a.swacorp.com -w prdswift1 -x -b ou=people,o=SWA-Access '(uid='$1')' dn company swaContractorstartDate swaContractorExpirationDate
+}
+addgtm ()
+{
+knife node run_list add $1.swacorp.com recipe[swa_syslogng_gtm];
+}

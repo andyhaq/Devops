@@ -1,0 +1,776 @@
+yum install compat-libstdc++-33-3.2.3-69.el6.x86_64 <-- check xltcrewb02 for tivoli agent install. this library resolved issue.
+nfsstat -m  <-- gives nfs version for mountpoint
+
+nfsiostat 5  8 /opt/nas/ux_oracle_prd_logs/PROSWNEP   <-- check latency mountpoint
+
+ssh -o BatchMode=yes -o StrictHostKeyChecking=no root@xlpoml01.swacorp.com  /var/opt/OV/bin/Automate/node_automate.sh xltncs01.swacorp.com nonprod lin add <---found from /opt/SWAted/build/complete/2015-03/xltncs01-EM.log , will restart monitoring. /var/opt/OV/bin/Automate/logs/automate_output.log
+
+/opt/SWAfog/tools/VAPOR-Deploy.pl --Config /opt/SWAted/build/approved/xlstra28.json --FinalizeOnly --username 'LUV\e93204'
+/opt/SWAfog/tools/VAPOR-Deploy.pl –Config /opt/SWAted/build/approved/<servername>.json –FinalizeOnly
+
+chef-client -E dev -j ./dev-first-boot.json <-- check in /etc/chef for the .dev tag file.
+
+if there is an error during server build after TED, just delete the .json file & also go to temp location and clear the json file. restart vapor.also go to dns porteus
+/opt/SWAted/build/temp
+search entry, after login to porteus url, search hostname, click on hostname , click on ip address, there is dropdown menu for ipaddress above stating edit,delete and delete the record there.restart vapor. 
+------------------------ 
+#find / -type f -size +20M -exec ls -lh {} \; 2> /dev/null | awk '{ print $NF ": " $5 }'  <-- find files greater than 20m
+#find /path/to/files* -mtime +5 -exec rm {} \; <-- find and delete older files
+yum list installed|less
+
+yum install tcpdump
+https://www.rationallyparanoid.com/articles/tcpdump.html
+https://danielmiessler.com/study/tcpdump/   <--nice
+tcpdump -n dst host 172.31.31.249 -w /var/2013greencertremovaltest.pcap   <--jasons on xldtra17
+tcpdump -i eth0 <--capture from specefic interface
+tcpdump -c 5 -i eth0  <-- capture only n number packets
+tcpdump -D <-- display available interfaces
+tcpdump -w cap.pcap -i eth0 <--capture packets in file
+tcpdump -r cap.pcap <-- read captured packets file
+tcpdump -n -i eth0  <--capture ipaddress packets
+tcpdump -i eth0 tcp <-- capture only tcp packets
+tcpdump -i eth0 port 22 <-- capture packets from specefic port
+tcpdump -i eth0 src ip <-- capture packets from source ip
+tcpdump -i eth0 dst ip <-- capture packets from destination ip
+tcpdump -n dst host 172.31.31.249 -w xldtra17_cert_removed.pcap    <-- ran this from any syslog-ng client that connects to xlpadt01-log.swacorp.com
+
+tcpdump port 25 -s 0 -vvv -C 100 -W 50 -w /tmp/example.pcap
+•-s 0 tells tcpdump to collect the entire packet contents. 
+•-vvv enables verbose logging/details (which among other things will give us a running total on how many packets are captured).
+•-C 100 tells tcpdump to store up to 100 MB of packet data per file.
+•-W 50 tells tcpdump to store up to 50 rollover files (example.pcap00, example.pcap01 … example.pcap49 at which point it would start over)
+•-w /tmp/example.pcap tells tcpdump where to write the files. Important note on this: since tcpdump will be creating new files dynamically, this destination directory needs to be an area where it can create new files (for example /tmp).
+
+tcpdump port 6601 and '(tcp-syn|tcp-ack)!=0'   <-- i figured nice to check on port
+tcpdump -i em1 udp port 80 -vv -X   <-- good for udp check
+
+So in this case, tcpdump will use a max of ~ 5 GB.
+
+http://content.hccfl.edu/pollock/Unix/FindCmd.htm  <--find
+http://mikeberggren.com/post/55090292716/tcpdump-max
+
+rpm -qa --last  <- rpm with time
+
+ip route add xx.xx.xx.0/24 via xx.xx.xx.1 dev eth1
+route add default gw xx.xx.xx.xx eth1
+cpu eating processes:-
+ps -eo pcpu,pid,user,args | sort -k 1 -r | head -10
+ps -eo pcpu,pid,user,args | sort -r -k1 | less 
+
+
+mpstat -P ALL
+sar:- cpu utilisation
+sar -u 2 5 (or) below command does the same & also captures to file
+sar -o output.file 12 8 >/dev/null 2>&1 &   (or)  nohup sar -o output.file 12 8 >/dev/null 2>&1 & <-- runs baground
+sar -f data.file<-- sar -f /var/log/sa/
+sar -r -f sa26<-- worked for mem
+Memory:-
+ps aux
+USER PID %CPU %MEM VSZ     RSS   TTY   STAT  START TIME COMMAND
+root 854 0.5  39.2 239372  36208 pts/0 S     22:50 0:05
+/usr/local/jdk/bin/java -Xms16m -Xmx64m -Djava.awt.headless=true -Djetty.home=/opt/jetty -cp /opt/jetty/ext/ant.jar:/opt/jetty/ext/jasper-compiler.jar:/opt/jetty/ext/jasper-runtime.jar:/opt/jetty/ext/jcert.jar:/opt/jetty/ext/jmxri.jar:/opt/jetty/ext/jmxtool
+Look for %MEM & We can see that java is using up 39.2% of the available memory.
+
+ps -eo pmem,pcpu,vsize,pid,cmd | sort -k 1 -nr | head -5   <-- top 5 memory eating process
+--------------
+lsof:-
+lsof -i | grep 834 (gives which user / program is using this port)
+lsof -u username <-- user open files
+lsof -i <-- shows who has listening and established
+lsof -i 4; lsof -i 6 <-- gives tcp with ipv4 & ipv6 filedescriptors
+lsof -i TCP:22  <-- openfiles on specefic port number ****************
+lsof -i TCP:1-1024 <-- list running process open files for port ranges
+lsof -i -u^root <-- exclude userid
+lsof -i -u username <-- shows what commands specefic user running nice
+lsof -p 1 <--search files with PID Number ****************
+kill -9 `lsof -t -u username` <--kill all process of specefic user
+---------------
+214-792-3300 - service desk contact
+/etc/rc.local
+-------------
+logserver logs:- xlslog01 xlslog02
+[root@xlslog01 conf]# pwd
+/opt/logpool/archive_tools/conf
+
+[root@xlslog01 conf]# grep xlpwas13 *.conf
+archive_websphere.conf:/opt/applogs/websphere/xlpwas13/SPN:/opt/logpool/applogs/websphere/xlpwas13/SPN:SystemOut.*\d\d.\d\d.\d\d.log:90:yes:wassup:0666
+                                this is source                               this is destniation
+[root@xlslog01 conf]# cd /opt/logpool/applogs/websphere/xlpwas13/SPN
+
+[root@xlslog01 SPN]# ls -l SystemOut_15.03.19_23.00.12.log.gz
+-rw-rw-rw- 1 wassup wassup 19884 Mar 19 23:00 SystemOut_15.03.19_23.00.12.log.gz
+[root@xlslog01 SPN]#
+----------------------
+xlpted04# cd /opt/usad/bin;./ldapSearch -u x213764 -h    <--queries users servergroup
+./ldapSearch -u x213764 -H xltncs01  <-- gives what commands user can run on this host
+----------------------
+echo 3 | sudo tee /proc/sys/vm/drop_caches 
+or sh -c "sync; echo 3 > /proc/sys/vm/drop_caches"; check free -t -m , the memory will be increased after clearing diskcache.
+Disk cache makes applications load faster and run smoother, but it NEVER EVER takes memory away from them
+When programs need memory, Linux gives them memory. The program neither knows nor cares whether that memory was “free” or contained disk cache data. If they ask for more memory than the system can provide in ram after freeing up disk cache space, they will get space on swap – or an error return code. It is that simple.
+
+------------------
+x213764@xlpnas01:~> hfind sdisk03
+sdisk03.swacorp.com.    900     IN      A       172.26.18.23
+sdisk03-bk2.swacorp.com. 900    IN      A       172.19.84.188
+sdisk03-ilo.swacorp.com. 900    IN      A       172.26.18.123
+sdisk03-sn1.swacorp.com. 900    IN      A       172.26.60.23
+sdisk03-sp575.swacorp.com. 900  IN      A       172.26.64.248
+---------------==============================================================================
+http://www.tldp.org/HOWTO/Oracle-7-HOWTO-6.html  <-- stop start for older oracle versions and not for CRS
+The following commands will ensure that the databases will come up in runlevels 2,3 and 4: 
+--------------------------------------------------------------------------------
+$ ln -s ../init.d/oracle /etc/rc.d/rc2.d/S99oracle
+$ ln -s ../init.d/oracle /etc/rc.d/rc3.d/S99oracle
+$ ln -s ../init.d/oracle /etc/rc.d/rc4.d/S99oracle
+--------------------------------------------------------------------------------
+To stop the databases on reboot or restart we need the following links: 
+--------------------------------------------------------------------------------
+$ ln -s ../init.d/oracle /etc/rc.d/rc0.d/K01oracle          # Halting
+$ ln -s ../init.d/oracle /etc/rc.d/rc6.d/K01oracle          # Rebooting
+
+[root@xlpted04 ~]# ls -l /etc/rc.d/rc2.d/*chef* /etc/rc.d/rc3.d/*chef* /etc/rc.d/rc0.d/*chef* /etc/rc.d/rc6.d/*chef*
+lrwxrwxrwx 1 root root 21 Mar 19  2013 /etc/rc.d/rc0.d/K02chef-client -> ../init.d/chef-client
+lrwxrwxrwx 1 root root 21 Mar 19  2013 /etc/rc.d/rc2.d/S98chef-client -> ../init.d/chef-client
+lrwxrwxrwx 1 root root 21 Mar 19  2013 /etc/rc.d/rc3.d/S98chef-client -> ../init.d/chef-client
+lrwxrwxrwx 1 root root 21 Mar 19  2013 /etc/rc.d/rc6.d/K02chef-client -> ../init.d/chef-client
+[root@xlpted04 ~]# ls -l /etc/init.d/chef*
+-rwxr-xr-x 1 root root 2431 Apr 30  2013 /etc/init.d/chef-client
+[root@xlpted04 ~]# chkconfig --list|grep chef
+chef-client     0:off   1:off   2:on    3:on    4:on    5:on    6:off
+
+-------------------------------------------------------------------------------
+strace postfix
+===================================
+[root@xlpodb03 ~]# cat /proc/meminfo|grep Hugepagesize
+Hugepagesize:     2048 kB
+[root@xlpodb03 ~]# sysctl -a|grep vm.nr_huge
+vm.nr_hugepages = 20480
+
+The memory limits for user “oracle” can be calculated by multiplying the number of HugePages with 
+the Hugepagesize
+
+[root@xlpodb03 ~]# grep memlock /etc/security/limits.conf
+#        - memlock - max locked-in-memory address space (KB)
+oracle           soft    memlock         42949672
+oracle           hard    memlock         42949672
+
+====================================
+ps -ef | grep -i cark <--cyberark running process
+====================================
+xlprac25:~ # hplog -p (check power supply bay status HP hp machine)
+====================================
+find only files in specefic directory;
+cd gpgn;
+find . -type f -name '*.*'
+
+find . -type f -name '*.*' -exec ls -ltr {} \;
+
+==================================
+/sbin/hplog -p
+xlprac25:~ # /sbin/hplog -p
+ID     TYPE        LOCATION      STATUS  REDUNDANT
+ 1  Standard     Pwr. Supply Bay Normal     No
+ 2  Standard     Pwr. Supply Bay Failed     No
+==================================
+rpm -qcf {/path/to/file} Display list of configuration files for a command
+rpm -qc {pacakge-name} Display list of configuration file(s) for a package
+=========================
+nmap -sT -O localhost <-- best gives port currently open on the server
+========================
+nc -l 5900 <-- temp open port for testing
+nc -z hostname 22 <-- checks if port pings
+=======================
+update-alternatives --config java <-- change version of java
+======================
+mtr hostname <-- finding out a bad or simply overloaded network link
+mtr --report xltncs01 <-- check loss%
+=====================
+sysctl.conf tag to disable on server for chef overwriting defaults.
+touch /var/swa_chef/swa_sysctl.norun; touch /var/swa_chef/swa_venafi_agent.norun;swa_snmp.norun;swa_ldap.norun(for sssd ldap);swa_resolver.norun(for resolv.conf)
+Do that, then update /etc/sysctl with something to test, then run chef-client
+====================
+java:- in xlpted04 - /opt/usad/java/done  is location for new binaries with certs already there.
+now mount the filer that is needed in my case needed to copy to sdc filer. so mount sdc filer on xlpted04 and once the mount is done, go to /opt/usad/java/done, make tar file for the java binaries needed in my case was jdk1.8.0_31.tar and later copy the tar file to the mounted filer location. extract tar and done.
+=================================
+#mount -o remount,rw /partition/identifier /mount/point; #mount -o remount,rw /dev/sdb3 /mountpoint; #mount -t fstype -o remount,rw /dev/sdb3 /mountpoint;#mount -o remount /
+[root@xlpoml01 ~]# /var/opt/OV/bin/Automate/node_automate.sh xlqeip38.swacorp.com nonprod lin add
+About to process nonprod node and add it to OMLi and NNMi
+CALLING OPENVIEW QA. THIS WILL TAKE 1 MINUTE AND COME BACK WITH OUTPUT
+
+Returning from QA with: Successful addition ; Will try to add MessageAllowed Node in Prod
+Adding node to be seeded in NNM
+
+1 seeds added
+0 seeds invalid
+0 seeds duplicated
+----------------------------------------
+We are looking to implement a runbook for what to do when the securityservice has issues. At the current time, it’s very basic, and we’ll be sending more information once it gets processed.
+
+From our perspective, we should run the following command:
+sosreport –o networking
+(hit enter a few times for defaults) 
+Then  reboot all the servers in the environment once you get clearance on the bridge.
+as per james sosreport generates tar file and need to be sent to rhn for review. run this before rebooting on xlpifs01-04 and xlsifs01-04 wow sale. 
+-----------------------------------------------
+sed 's/,/\n/g' ~x213764/qd <-- seperate comma with another line
+showmount -e qdisk01|awk '{print $2}'|sed 's/,/\n/g'|grep xlq|sort -u|wc -l  <-- from nas01
+----------------------------------------------
+To add new id to chef Chris C said to run below command on xlpchef03.once my id was created with below command, I was able to login to https://chef.swacorp.com/organizations/swa/nodes with my id x213764. Also the notes to look is to open confluence ==> login==> in search type chef 12 and it resolves chef 12 Unix Engineering and open the file. Step 5 in the document says to run command  to create login id to use this chef url.
+#chef-server-ctl org-user-add swa x213764 --admin
+------------------------------------------------
+after reinstalling cyberark on xltlfs21, user can validate using below command.
+[root@xltlfs22 ~]# /opt/CARKaim/sdk/clipasswordsdk GetPassword -p AppDescs.AppID=SWAApp-DOTCOM-Dev-Itest -p Query="Safe=AIM-ITEST-LDAP-DOTCOM;Object=Directory-AIMswaldapit-EcomServ" -o PassProps.UserName,Password
+EcomServ,aKrto4p37ugeZ2X
+===========================================
+service aimprv status  <-- cyberark process
+===========================================
+sent 10/29/2015.
+Please see the attached document regarding engaging SMS for hardware support.  In short, DCE will be handling all interaction with SMS.  If Unix Engineering is needed, DCE will coordinate that effort.  
+
+Please remember that SMS handles the Dell & HP Proliant hardware support.   
+
+SourceDirect still handles the Solaris/Oracle hardware but we should be consulting with DCE to determine how to best handle the problems.
+
+If we get HP Proliant server hardware incidents, please forward those to DCE.  Will work with Enterprise Monitoring to get any hardware alerts sent directly to them.
+
+Please let me know if you have any questions or need any other information.
+
+ (attached file stored as SWA Data Center Access.docx) on desktop.
+
+
+Thanks,
+
+Hollis Millikin
+Southwest Airlines
+214-792-7260
+Hollis.Millikin@wnco.com 
+==========================================
+to find console information
+[x213764@xlpted04 inventory]$ pwd
+/opt/usad/cchamber/inventory
+in /opt/usad/cchamber/inventory [x213764@xlpted04 inventory]$ grep -i xlpodb13 racadm_serial.log
+bppbp14a,xlpodb13,,4QZ1WL1
+=========================================
+oracle - priv interface is interconnect, vip is database, cluster is listener or scanip. cs1,vip,listener are bond0.
+sn1 and priv are bond1
+=========================================
+before deleting vm run below commands.
+knife node list|grep xltifs12
+#knife node delete xlprfndgot01.swacorp.com and then do knife client delete xlprfndgot01.swacorp.com
+you will see entry here.
+[e44538@xllrob01 .chefREAL]$ for i in xltifs11.swacorp.com xltifs12.swacorp.com ;do knife node delete $i -y; knife client delete $i -y; done
+Deleted node[xltifs11.swacorp.com]
+Deleted client[xltifs11.swacorp.com]
+Deleted node[xltifs12.swacorp.com]
+Deleted client[xltifs12.swacorp.com]
+[e44538@xllrob01 .chefREAL]$ pwd
+/export/home/e44538/.chefREAL
+[e44538@xllrob01 .chefREAL]$
+------------------------------------------
+mount -t iso9660 /dev/sr0 /media/cdrom (mount iso)
+-----------------------------------------
+logs of cyberark /var/opt/CARKaim/logs/APPAudit.log
+----------------------------------------
+ping -I eth1 -c 3 hostname <-- ping with interface
+---------------------------------------
+grep Max /proc/19600/limits <-- where 19600 is pid of process and you can find max filedescriptors set for this pid
+---------------------------------------
+find cpu , memory size with below on multiple hosts
+[root@xlpted04 complete]# for i in xltncs01 xltncs02; do echo $i ++++++++++++++++++++++++++++++++;ssh $i echo No.of cpus = `grep processor /proc/cpuinfo|wc -l`; echo cpu in MHZ `ssh $i /usr/bin/lscpu|grep MHz|awk '{print $3}'`; echo Physical Memory in MB - `ssh $i free -t -m|grep Mem|awk '{print $2}'`; done
+xltncs01 ++++++++++++++++++++++++++++++++
+No.of cpus = 2
+cpu in MHZ 2300.027
+Physical Memory in MB - 15951
+xltncs02 ++++++++++++++++++++++++++++++++
+No.of cpus = 2
+cpu in MHZ 2400.028
+Physical Memory in MB - 15951
+---------------------------------------
+#ls /sys/class/scsi_host/ | while read host ; do echo "- - -" > /sys/class/scsi_host/$host/scan ; done <-- scan new drive to vm
+#echo "1" > /sys/block/sdx/device/delete <-- where sdx is drivename to be deleted from vm
+---------------------------------------
+df -h -F nfs ; df -t ext3
+---------------------------------------
+restarted syslog-ng process when max file descriptors reached. haven't increased any value and restarting process resolved issue.
+----------------------------------------
+/opt/SWAfog/tools/VAPORAIS-Inventory.pl vcma12   <-- used for a12 vaporais after deleting vm for rebuild.
+-------------------------------------
+netstat -atnp | grep ESTA  <-- nice
+--------------------------------------
+send tickets to Ravishh Kumar for swift launch application errors on workstation
+---------------------------------------
+New Sudo post modification to sudoers file:-
+/opt/edir/scripts/var/sudoers/sudoers2ldap-SWA-Access.log
+Unix Engineering Team,
+
+The sudosync script, which handles parsing the sudoers config file and loading it into LDAP, has been moved to a new host, xlpsec01.  The documentation describing how to run this script has been updated in the master sudoers file.  For your reference, here are the relevant instruction steps from the sudoers file.
+
+#  9. login as root on host xlpsec01  (might be easier/faster to do from ted)
+# 10. run the script /opt/edir/scripts/var/sudoers/sudosync
+#     It should take about twenty seconds.  There is no output given nor interactive input required.
+# 11. Check the recent entries at the end of /opt/edir/scripts/var/sudoers/sudoers2ldap-SWA-Access.log
+
+Let me know if you have any questions.
+
+Chad Dodd
+--------------------------------------
+exportfs -a <-- nfs exports all paths netapp
+--------------------------------------
+ulimit -a
+-t: cpu time (seconds)         unlimited
+-f: file size (blocks)         unlimited
+-d: data seg size (kbytes)     unlimited
+-s: stack size (kbytes)        8192
+-c: core file size (blocks)    0
+-m: resident set size (kbytes) unlimited
+-u: processes                  192276
+-n: file descriptors           21000
+-l: locked-in-memory size (kb) 40000
+-v: address space (kb)         unlimited
+-x: file locks                 unlimited
+-i: pending signals            192276
+-q: bytes in POSIX msg queues  819200
+-e: max nice                   30
+-r: max rt priority            65
+-N 15:                         unlimited
+---------------------------------------
+note TASK0578628 hollis mentioned that servers needed to be added to the users existing pamgroups
+---------------------------------------
+#dd if=/dev/zero of=foo bs=14MB count=1 creates 14mb file
+---------------------------------------
+ps -eLf|grep oracle|egrep -v root|wc -l  <-- vry nice command to check & gives closest to oracle running process currently on the server and found during resource fork bomb on the database server.check this with corresponding ulimit -u[nproc]  on the server. 
+-------------------------------------
+--------------------------------------
+check graph for vm
+1. Connect to a vCenter Server instance with the vSphere Client.
+2. Navigate to the Hosts And Clusters or VMs And Templates inventory view.
+3. In the inventory tree, select a virtual machine.
+4. Select the Performance tab from the content pane on the right, and then change the view to Advanced.
+5. Click the Chart Options link.
+6. In the Customize Performance Chart dialog box, select CPU from the resource type list. Select the Custom interval.
+7. Near the bottom of the Chart Options section, change the interval to Last 1 Hours.
+8. Set the chart type to Line graph.
+9. Select the virtual machine itself from the list of objects.
+10. From the list of counters, select CPU Usage In MHz (Average) and CPU Ready. This shows you how much processor is actually being used and how long it's taking to schedule the VM on a physical processor.
+11. Click OK to apply the chart settings.
+--------------------------------------
+xlpsec01 loglocation for sudo is /opt/edir/scripts/var/sudoers/sudoers2ldap-SWA-Access.log
+-----------------------------------
+For resource Fork NLWP needs to be checked.
+ps -o nlwp,pid,lwp,args -u swacat|sort -n|awk '{print $1}'|egrep -v NLWP| paste -sd+ | bc       <-- max user process; if exceeding the set 1024 for swacat id it throws resource fork error
+-------------------------------------
+ps -u swacat; netstat -pant|grep (pidfromoutput)
+for i in `ps -u swacat|awk '{print $1}' |egrep -v 'PID' |xargs` ; do echo $i `ls -ltr /proc/$i/fd|wc -l`; done  <-- gives filedescriptors per process for swacat user
+------------------------------------
+su - swacat;ps eu <-- cpu * mem %
+-----------------------------------
+fwadmin corbareboot script
+/opt/usad/mboyd/frworks/
+1.) cd /opt/usad/mboyd/frworks/
+2.) cp -pr swa_corbaagent root@xldocstc01.swacorp.com:/etc/init.d/
+3.)ln -s /etc/init.d/swa_corbaagent /etc/rc3.d/S97swa_corbaagent
+lynn script++++++++++++
+log in to germany servers a12sclted001
+
+x213764 user create a file called DLhost.list and run the script ./configtcvm for creating filesystem
+------
+[x210109@xlpted03 chef-prod]$ knife node show a11pclsectkz003.swacorp.com;knife node run_list add a11pclsectkz003.swacorp.com fw_base
+------------
+echo $STY  <-- screen inf
+------------
+Please update acodsbatchid .profile with following variable in the following servers 
+
+export JAVA_HOME=/opt/java/jdk1.8.0_65
+export PATH=$JAVA_HOME/bin:$PATH
+----------------
+check swap in or out for specefic day
+# ls -al /var/log/sa | grep "Oct 12"
+-rw-r--r--    1 root     root      2333308 Oct 12 23:55 sa12
+-rw-r--r--    1 root     root      4354749 Oct 12 23:53 sar12
+# sar -W -f /var/log/sa/sa12
+ The fields pswpin and pswpout show the total number of pages brought in and out per second, respectively.
+If the server shows sporadic swap activity or swap activity for a short period time at certain intervals, then you can either add more swap space or RAM. If swap usage is already very large, do not confuse very large swap usage with constant swapping, then more RAM is recommended.
+----------------------------
+matt list to add knife node is
+cd /opt/usad/mward/chef/prod
+run from there
+-------------------------
+images located in \\narch06\mediaDepot\OS Images. map it.
+-------------------
+/usr/sbin/vmware-tools-upgrader -p "default"   <-- will install vmware tools on the vm
+;script also in /opt/usad/.haq/upgradeVMtools.pl; for server in `cat /tmp/serverlist`; do cat /opt/usad/depot/VMware/upgradeVMtools.pl | ssh $server perl; done <-- lak version vmware tools update
+------
+pxe boot server is xllpxe01 kickstart
+----------
+cd /opt/local/bin/ndate.sh <-- swift workstations date mostly on crew scheduling workstations
+-------
+172.18.67.215 labip
+--------------------
+xlwstn88 <-- /opt/local/swift/cores & /opt/local/swift/projects; /usr/NX/var/log/node
+-------------------
+ scadm userpassword admin <-- used to reset alom password
+/usr/platform/`uname -i`/sbin/scadm
+--------------------
+/opt/SWAted/build/config/filter.json 
+[root@xlpted04 config]# pwd
+/opt/SWAted/build/config
+[root@xlpted04 config]# ./CheckJSON.pl filter.json
+Checking File filter.json
+Done
+------------------
+knife bootstrap xlqlfs32.swacorp.com -x root -P Ap16ch0246 -N xlqlfs32.swacorp.com
+----------------
+alom to server type console and from server to alom type #.
+-------------------
+#touch -t 199010310115.00 inf yyyymmddhhmm.ss; #touch -d "2013-07-20 11:22:03" fname; recursive --> find . -exec touch -d "2017-07-11 15:07:05" {} \;
+--------------------
+\\narch06\mediaDepot\OS Images
+-------------------
+/opt/logpool/syslog/system/esx <-- xlsadt01 or sdcesxlog.swacorp.com <-- syslog sdc server for esx logs
+----------------
+for xlpftp02, it downloads files from internal servers and once files copied locally on ftp02, the same or another job will push the file to client using xlpftp01.
+----------------
+Jason Norman  
+
+/opt/logpool/syslog/auth_archive/unix/pdc_unix_pci_messages_2016.10.02.gz <-- october 2nd logfile
+10:34 AM 
+ 
+ 
+
+zcat / zgrep 
+10:35 AM 
+
+zgrep xlpodb06 pdc_unix_pci_messages_2016.10.02.gz  
+
+---------------
+mount -o acl,user_xattr /dev/device /mount/point
+mount -t ext4 block_device /mount/point
+------------------
+startup script for swaHttp - xldwebsrv100-107
+cp -pr swaHttp /etc/init.d
+chown root:root swaHttp
+chmod 755 swaHttp
+chkconfig --add swaHttp
+chkconfig --list swaHttp
+ls -ltr rc*.d/*swaHttp*
+
+[root@xldwebsrv107 ~]# cd /etc
+[root@xldwebsrv107 etc]# ls -l rc*.d/*swaHttp*
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc0.d/K15swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc1.d/K15swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc2.d/K15swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc3.d/S85swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc4.d/S85swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc5.d/S85swaHttp -> ../init.d/swaHttp
+lrwxrwxrwx 1 root root 17 Oct 21 09:31 rc6.d/K15swaHttp -> ../init.d/swaHttp
+
+------------------------
+ldapSearch -u x213764 -h
+-----------------------
+[root@xlpted04 ~]# nc -zv xlprhn01 443   <-- check port connection status
+nc -z -v -u (or nc -zvu server port <-- check udp port connection status
+Connection to xlprhn01 443 port [tcp/https] succeeded!
+-----------------------
+top -b -n 1 | head   <- nice cpu 
+--------------------
+/etc/security/limits.conf & /etc/security/limits.d/90-nproc.conf
+-----------------
+xlpftp01:/export # rsync -avz home /opt/bsmsftp/export_home-
+---------------
+threshold-groupsearch|grep -i unix
+threshold-list
+threshold-modify -m /SWA/tomcat -p 2 -t 91 -g 550
+so if we want to delete the alert, then go to /usr/local/etc/swa* and remove tomcat folder.
+cd /usr/local/etc/swa*
+rm -rf tomcat
+
+now do threshold-list and we see the alert is missing from /opt/tomcat.
+now do rescan using threshold-scan and now we can see alert is defaulted to 96%
+----------------------
+1.  Boot the system from boot disc1/Rescue CD, once the system has successfully booted from the      ISO image and Red Hat Enterprise Linux boot screen  will appear.
+
+ 5. If you are not using LVM, execute fsck on the device which contains the filesystem:
+  sh-3.1# e2fsck -f /dev/sda1
+  e2fsck 1.41.12 (17-May-2010)
+  [...]
+
+ 6. If you are using LVM, you will need to activate the volumes in order to scan them. You perform this task with LVM scans.
+
+  sh-3.1# lvm pvscan
+  PV /dev/sda1 VG VolGroup00 lvm2 [96.00 MB / 0 free]
+  Total: 1 [3.34 GB] / in use: 1 [3.34 GB] / in no VG: 0 [0 ]
+
+  sh-3.1# lvm vgscan
+  Reading all physical volumes. This may take a while...
+  Found volume group "VolGroup00" using metadata type lvm2
+
+  sh-3.1# lvm lvscan
+  INACTIVE '/dev/VolGroup00/LogVol00' [3.34 GB] inherit
+
+  sh-3.1# lvm vgchange -ay
+  1 logical volume(s) in volume group "VolGroup00" now active
+
+  sh-3.1# e2fsck  /dev/mapper/VolGroup00/LogVol00
+  e2fsck 1.41.12 (17-May-2010)
+  [...]
+---------------------------------------------------
+bonding drivers:-
+lsmod|grep bond
+grep 8021q /lib/modules/`uname -r`/modules.dep
+
+/lib/modules/2.6.32-504.16.2.el6.x86_64/kernel/drivers/net/bonding/bonding.ko
+----------------------------------------------
+dspmqinf qmgrname <-- check datapath for log location for mq
+---------------
+knife status | grep 5.8 <-- find OS with 5.8 by chaitu
+-------------
+racadm racreset soft
+/opt/SWAted/build/config <-- filter
+-----------------------------------
+make sure host in maintainance mode
+http://www.dell.com/support/home/us/en/19/Drivers/DriversDetails?driverId=7FGNG
+http://www.dell.com/support/contents/us/en/19/article/Product-Support/Self-support-Knowledgebase/enterprise-resource-center/Enterprise-Tools/dell-system-e-support-tool
+
+copy /opt/usad/haq/OM-SrvAdmin-Dell-Web-8.4.0-2193.VIB-ESX60i_A00.zip to esx /var/log/vmware
+esxcli software vib install -n /var/log/vmware
+once completed reboot
+later use support assist front end to run the credentials and generate report.
+
+
+
+if you want to remove then use esxcli software vib list and then 
+esxcli software vib remove -n=namelistedabove
+------------------------------------------------
+nscd needed for rhel5.5 for ldap authentication
+----------------------------------------------
+for i in `cat lxhosts`; do grep -n $i lxhosts; ssh $i bash -s <lsc; done  <-- used to run remote script on local machine
+-----------------------------------------
+echo LUV > /proc/sys/kernel/domainname
+-----------------------------------------
+/etc/security/limits.d/90-nproc.conf  <-- new limits.conf only for redhat6
+------------------------------------
+readonly filesystem
+root     32255 32252  0 10:54 ?        00:00:00 /bin/sh -c /opt/SWAted/scripts/roFilesystems.sh Production  >> /var/log/ro-filesystems.log
+root     32256 32255  0 10:54 ?        00:00:00 /bin/bash /opt/SWAted/scripts/roFilesystems.sh Production
+---------------------------------
+[root@xldesm01 tmp]# ./bootstrap.py -l admin -p hello123 -o "southwest airlines" -g DEV-72 -a swa-server7-dev -s xldrhnc20.swacorp.com -L SDC -P --force
+#./bootstrap.py -l admin -p hello123 -o "Southwest Airlines" -g DEV-72 -a swa-server7-dev -s xldrhnc20.swacorp.com -L SDC -P --force  <== worked with S A
+-------------------------------
+dd if=/dev/zero of=/mountpt/test1.img bs=1G count=1 oflag=dsync
+In this below example, 512 bytes were written one thousand times to get RAID10 server latency time:
+dd if=/dev/zero of=/mountpt/test2.img bs=512 count=1000 oflag=dsync <--gives during server app loads, its writing 512bytes 1000 times with total generating 1Gb output.check above line too , this output gives server latency time
+
+time sh -c "dd if=/dev/zero of=dd-test-file bs=8k count=1000000 && sync"
+1000000+0 records in
+1000000+0 records out
+
+real    0m18.42s
+user    0m0.70s
+sys     0m16.77s
+$ ls -l ddfile
+-rw-r--r--   1 oracle     oinstall   8192000000 Nov  2 16:11 dd-test-file
+$ rm dd-test-file
+------------------------------
+subscription-manager unsubscribe --all   <-- to unsubscribe
+-----------------------------
+/var/chef/cache/cookbooks/swa_ldap/recipes/sssd7.rb  <-- enable sssd rhel7
+----------------------------
+sudo -l -U x218086  <-- gives sudo pamgroup privs
+------------------------------
+top -H <-- try nice
+------------------------------
+ps -o pid,comm,nice -p 4314 4321 ; gives nice priority; renice 0 -p 3955 4845 10365 <-- fix nice priority
+--------------------------------
+ntpq -p <-- verify ntp sync status also http://www.tecmint.com/install-ntp-server-in-centos/
+-----------------------------
+https://docs.oseems.com/general/application/ssh/disable-timeout <-- tcp keep live tcpkeepalive intervals
+----------------------------
+metareplace -e d6 c1t1d0s6 where c1t1d0 was new replaced drive. do for all metastats to change from maintainance to resync
+----------------------------
+/opt/local/etc/pass   <-- location for all servers uid and gids
+---------------------
+grep bond ifcfg-eth*|grep MASTER   <-- for redhat7 bonding bond check
+----------------------
+/etc/yum.conf and uncomment exclude to update kernel from 7.2 to 7.3 update or upgrade
+---------------------
+/opt/OV/bin/ovcstatus /opt/OV/bin/ovc  <-- both shows performance processes.
+------------------------
+/opt/usad/depot/cyberark/APP6.0/Linux  <-- cyberark old version rpms
+----------------------
+lifekeeper log /var/log/lifekeeper.log
+----------------------
+manual registering chef from qa to prod.
+delete existing swakey by rpm -e swakey
+go to /opt/usad/rhn/chef_bootstrap and install swakey for prod ie chef-swakey-prod.x86_64.rpm
+once installed run firstboot.json for prod. 
+thats it server registered manually to prod. this helps if qa failing, u can register to prod.
+--------------------------
+ mount /dev/sr1 /cdrom   <-- sometimes mount cdrom like this
+-------------------------
+hostnamectl set-hostname hostname  <-- rhel7
+------------------------
+./bootstrap.py -l admin -p hello123 -o "Southwest Airlines" -g QA-72 -a swa-custom7-qa,swa-server7-qa -s xlqrhnc10.swacorp.com -L SAT -P --force  <-- worked new qa
+/opt/oradm/tools/oswatcher/hosts/xlpodb89/oswbb/archive/ <-- zach given for iostats then
+for i in `ls`; do  echo /opt/$i `df -h -T /opt/$i |awk '{print $1}'|egrep 'ext|nfs'`;echo "";done  <-- see if fs is local or nfs
+sysctl -w kernel.domainname=LUV <-- set domainname
+yum group install "Development Tools" <-- install glibc
+----------------------
+curl -s -O http://xldrhnc10.swacorp.com/pub/bootstrap.py ; ./bootstrap.py -l admin -p hello123 -o "Southwest Airlines" -g DEV-73 -a swa-custom7-dev,swa-server7-dev -s xldrhnc10.swacorp.com -L PDC -P --force <-- worked lynn pdc dev
+---------------------
+rm /etc/ld.so.cache;ldconfig   <-- ls ld fix
+--------------------
+[root@xlpnnm10 ~]# snmpwalk -v2c -c bin7hog xlaatl01   <-- it communicates for snmp
+------------------------
+connection timeout for ssh use -o ConnectTimeout=5 in secs
+for i in `cat chailist`; do echo $i syslog-ng version is `ssh -o ConnectTimeout=5 $i "/opt/syslog-ng/sbin/syslog-ng -V|grep 'Installer-Version'|awk '{print $2}'"`|tee -a /tmp/chaiop; done
+------------------------
+badblocks -n -vv /dev/sda <-- only after partitions unmounted to check badblocks; -n gives write check errors
+-------------------------
+
+but there is a nightly copy of the latest, available /etc/passwd and /etc/group files 
+10:33 AM 
+
+/opt/SWAted/data/Accman/pass  <host>.pwd  <host>.grp <-- backup location for passwd and group files 
+---------------------------
+telnet prodvault.swacorp.com 1858  <-- port check for cyberark vault
+--------------------------
+in ted04 /var/timeout usage is /var/timeout  -s 9 10s ssh xltncs01 "hostname;uptime" where -s 9 is kill -9 to kill if hangs and 10s is 10seconds before issuing kill (or) there is also other way where we donot want kill -9 to be performed as not needed so just give /var/timeout 10s ssh xltncs01   <--there is no need to issue kill -9 here ; anyways both works timeout available in xltncs01
+
+connecttimeout doesnot work if ip pings only works great when ip doesnot ping where as timeout is genius
+------------------------
+to find smart uptime on list do upt function
+------------------------
+"which root user" gives admin name
+---------------------
+find . -name snapshot -prune -o -name mq-license-8.0.0-2.tar.gz  <-- excludes snapshotss
+--------------------
+net.ipv6.conf.eth0.disable_ipv6 <-- for ipv6 to be disabled check systemctl -a|grep 
+---------------------
+/opt/SWAted/data/Accman/pass/servername.grp and servername.pass (both files are backedup everyday)
+-------------------
+/opt/SWAted/build/inventory then run ./LocateVm.pl xldcarcsi13  <-- search for vm
+-------------------
+knife tag create xldwmq55.swacorp.com sysctl_custom   <-- donot update sysctl parameters with chef and tag it
+----------------
+echo /opt/usad/scripts/bluecatUpdate.pl -OP remove -DNSName "$i".swacorp.com -RR HostRecord   <-- a record del
+----------------
+for i in `grep "Dec  8" /var/log/ro-filesystems.log|awk '{print $9}'|awk -F '[' '{print $2}'|awk -F ']' '{print $1}'|sort -u` ; do echo $i+++;/var/timeout -s 9 15s ssh $i "grep -Fw ro /proc/mounts|egrep -v java";done  <-- readonly for that day
+-------------------
+https://vcdpdc:9443/vsphere-client  <-- vcenter gui
+-----------
+for csh set history=0 will regain
+------------
+System Support I/Ops  <-- dash group to suppress alerts
+------------
+ssh sdcdflr009 exportfs -io rw=xldifs10-sn1:xldifs11-sn1:xldifs12-sn1,root=xldifs10-sn1:xldifs11-sn1:xldifs12-sn1:xldifs01-sn1 /vol/dev_fw_services/dev_frameworks_development <-- this adds without updating exports
+------------
+knife tag create xldwmq55.swacorp.com sysctl_custom
+for i in xldwmq154 xldwmq155 xldwmq156 xldwmq158 xldwmq159 xldwmq160 xldwmq161 xldwmq163 xldwmq164 xldwmq165 xldwmq166 xldwmq167 xldwmq169 xldwmq170 xldwmq172 xldwmq173 xldwmq174 xldwmq176 xldwmq178 xldwmq180 ; do echo $i; cd /opt/usad/haq/chef/dev;knife tag create $i.swacorp.com sysctl_custom
+------------
+iostat -x 5| egrep 'sda|sdau|Device'   <-- monitor for r_await and w_await
+--------------
+ip addr add 10.34.53.55/22 brd + dev eth0 label eth0:1  <-- virtual interface
+service network restart or ip addr del 10.34.53.55/22 brd + dev eth0 label eth0:1;ip link delete eth0 type dummy; <-- to delete
+--------------
+----------------
+openssl enc -aes-256-cbc -salt -in /tmp/myscript -out /tmp/myscript.enc  <-- encrypt
+openssl enc -aes-256-cbc -d -in /tmp/myscript.enc -out /tmp/myscript    <-- decrypt
+---------------
+
+../sbin/syslog-ng -F -d -v -t -e
+--------------
+/opt/usad/x226657/chef-sdcPROD-repo   <-- chai
+-----------
+syslog-ng-ctl stats --reset
+/opt/syslog-ng/sbin/syslog-ng --foreground --trace --verbose --debug --stderr
+------------
+royce richie is point for horizon
+-------------
+/opt/mqm_ha/IAR01/data/IAR01/errors  <-- mqm error logs
+-------------
+openssl s_client -connect loginsightf.dev.pdc.swacorp.com:443
+---------------
+temp_gen_message.pl dev xldwmq149.swacorp.com 'test Pam' ADD|nc 127.0.0.1 1356
+-----------
+xadloginsight03:~ # cd /opt/vmware/bin;xadloginsight03:/opt/vmware/bin # ./li-ssl-cert.sh --backup;SSL certificates where successfully backed up to /tmp/li-ssl-certs.tar.gz
+----------
+knife search node "recipe:swa_syslogng_net"|grep Node
+
+knife search node "tokenization_auto"   <-- search tags
+------------
+systemd-cgtop <-- list systemd
+----------------
+lsof -i TCP:1-1024
+ps -fu swacat|awk '{print $9}'|awk -F '/' '{print $5}'   <--- check service instances
+-----------------
+echo "1" >  /proc/sys/net/ipv4/icmp_echo_ignore_all   <-- ping stopped
+/opt/usad/scripts/check_ip.pl
+----------------
+mkisofs -J -l -R -V "Label CD" -iso-level 4 -o output.iso input_directory
+---------------
+/opt/logpool/syslog/auth/unix <-- xlpadt01 unix logs
+----------------------
+tcpdump -i eth4 -nn -e  vlan    <-- find which vlan ethernet part of
+--------------------------
+net group /domain loginsight_ais_s   <-- given by sue
+--------------------------
+when root account locked in loginsight do this. #/sbin/pam_tally2 --user root; that shows failure attempts; then do pam_tally2 --user=root --reset <-- works on loginsight appliances
+----------------------
+ps aux --sort -pid   <-- nice ps used during xlpatl01; also check ps -e v|egrep 'Z|R|D'   <-- where Z is zombie stat process, R is runnable, D is process running on disk to see which is taking load
+------------------
+ps --sort -rss -eo rss,pid,command | head  <-- nice check this rss usage and kill pid if highly consumed
+======================
+cat /tmp/a|sed -e 's/,/\
+> /g'>/tmp/b
+======================
+syslog-ng-ctl verbose --set=on  <-- used for config issues.
+syslog-ng-ctl debug --set=on  <-- used for rewrites
+When you have finished, you can turn off verbose logs with:  syslog-ng-ctl verbose --set=off
+====================
+rpm -e --noscripts rpmname <--force delete rpm if it fails to uninstall worked for me
+==================
+grep tcpdump /opt/usad/jasons_stuff/Research/Tcpdumps/read|grep XxX
+===============
+/opt/logpool/syslog/auth/unix  <-- xlpadt and xlsadt unix logs
+===========
+for i in `cat sdclist`; do echo $i `/var/timeout  -s 9 10s ssh $i "uptime"`|tee -a /tmp/op;done
+=============
+for i in 3336.pts-9.xlpted04 27174.pts-13.xlpted04 22436.pts-22.xlpted04 11286.pts-6.xlpted04 ; do screen -X -S $i quit;done
+============
+logger -f filename; logger 'test';puts in messages to insight
+============
+/opt/vmware/bin/li-reset-admin-passwd.sh
+==============
+/opt/mqm_ha/PTS01/data/PTS01/errors/AMQERR01.LOG   <-- mq logs
+============
+on xlprelay01 , tcpdump port 1356  <-- good
+=============
+stty columns 120  <-- when terminal too wide solaris
+=============
+#rpm db repair 
+# rm -f /var/lib/rpm/__db*		
+# /usr/lib/rpm/rpmdb_verify /var/lib/rpm/Packages
+==============
+for i in `cat /tmp/a`; do echo $i+++++++++++++++++++++++++++++++++++++; ssh $i "echo 'exit'|telnet swaloghost 1997";sleep 1;done|tee -a /tmp/ops ; later grep -A1 -B1 Trying /tmp/ops amd verify  <-- port test
+============
+#for i in `cat swiftlist`; do echo $i+++++++++++++++++++; ssh $i "cat /dev/null | timeout 10 nc -o /dev/null swaloghost 1975 && echo 'It Works'";done|tee -a /tmp/1975op
+port connectivity test :- traceroute -n --tcp --port=1975 swaloghost
+
+port connectivity test:- cat /dev/null | timeout 10 nc -o /dev/null swaloghost 1997 && echo 'It Works'
+========================
+fallocate -l 1G file.dat <-- create large files
+=======================
+df -h -k /dev/mapper/rhel-tmp | awk 'gsub("%","")'  <-- exclude %
+====================
+truncate -s 5M fn <-- creates file but no size on filesystem
+===================
+loginsight root reset check  'pam_tally2 -u root' to see if locked and if locked then 'pam_tally2 -u root --reset' to unlock.
+===================
+ "core per socket" to always be 1. change only first one which is  "number of virtual sockets" <-- confirmed from Hollis aswell
+==================
+.haq/stsc for 7 and 6stsc for 6<-- service during boot
+=================
+hdqqclcossma001 /SWA/appbin/elasticsearch-7.2.0/config/log4j2.properties
+=================
+egrep 'FQDN|Tags' chefissop|sed 'N;s/\n/ /'    <-- sed merges here every 2lines to one
