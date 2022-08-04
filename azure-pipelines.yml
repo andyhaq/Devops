@@ -1,0 +1,51 @@
+# PoC pipeline for executing TF commands in an AzDO using the Terraform extension from Microsoft DevLabs
+# https://marketplace.visualstudio.com/items?itemName=ms-devlabs.custom-terraform-tasks&targetId=8d056950-22d0-49ed-8bf5-f7488569e996
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: A
+  jobs:
+  - job: A
+    steps:
+    - task: Bash@3
+      inputs:
+        targetType: 'inline'
+        script: |
+          cd $(System.DefaultWorkingDirectory)/FoundationLayer/GCP_Projects/bkt-shared-services/bkt-nonprod-host/
+          ls -al
+
+    - task: TerraformInstaller@0
+      displayName: "Install Terraform"
+      inputs:
+        terraformVersion: '1.2.2'
+
+    - task: TerraformTaskV3@3
+      displayName: "Initialize Terraform"
+      inputs:
+        provider: 'gcp'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/FoundationLayer/GCP_Projects/bkt-shared-services/bkt-nonprod-host/'
+        backendServiceGCP: 'GCP Foundation PoC'
+        backendGCPBucketName: 'bkt-ops-terraform-00-tf-org'
+        backendGCPPrefix: 'gcp-project/bkt-shared-services-nonprod-host'
+
+    - task: TerraformTaskV3@3
+      displayName: "Terraform Plan"
+      inputs:
+        provider: 'gcp'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/FoundationLayer/GCP_Projects/bkt-shared-services/bkt-nonprod-host/'
+        environmentServiceNameGCP: 'GCP Foundation PoC'
+
+    - task: TerraformTaskV3@3
+      displayName: "Terraform Apply"
+      inputs:
+        provider: 'gcp'
+        command: 'apply'
+        commandOptions: '-auto-approve'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/FoundationLayer/GCP_Projects/bkt-shared-services/bkt-nonprod-host/'
+        environmentServiceNameGCP: 'GCP Foundation PoC'
